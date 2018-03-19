@@ -62,3 +62,6 @@ class PID:
 
         self.sample_time = sample_time
 
+    def setPoint(self, set_point):
+        self.SetPoint = set_point
+

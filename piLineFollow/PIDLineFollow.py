@@ -16,14 +16,14 @@ global P
 global I
 global D
 
-P = 6.0
+P = 0.0
 I = 0.0 
-D = 26.0
+D = 0.0
 
 # initialize pid class
 pid = PID.PID(P,I,D)
 pid.SetPoint = 0.0
-pid.setSampleTime(0.01)
+pid.setSampleTime(0.0)
 
 # initialize motor class
 motor = motor.motor()
@@ -47,6 +47,8 @@ global s2
 global s3
 global s4
 global s5
+global hold
+hold = False
 
 s1 = 0
 s2 = 0
@@ -84,6 +86,8 @@ def getSensors():
     global s3
     global s4
     global s5
+    global initialSpeed
+    global hold
 
     lineSensor.update()
 
@@ -97,14 +101,21 @@ def getSensors():
 
     #print(str(s1) + " " + str(s2) + " " + str(s3) + " " + str(s4) + " " + str(s5))
 
+    while hold:
+        if s3 == 1:
+            hold = False
+            break
+
     if not s1 and not s2 and s3 and not s4 and not s5:
         error = 0
     elif not s1 and not s2 and s3 and s4 and not s5:
-        error = 1
+        error = 2
     elif not s1 and not s2 and s3 and s4 and s5:
         error = 5
+       # hold=True
     elif not s1 and s2 and s3 and s4 and s5:
         error = 5
+       # hold=True
     elif not s1 and not s2 and not s3 and s4 and not s5:
         error = 2
     elif not s1 and not s2 and not s3 and s4 and s5:
@@ -115,8 +126,10 @@ def getSensors():
         error = -1
     elif s1 and s2 and s3 and not s4 and not s5:
         error = -5
+       # hold=True
     elif s1 and s2 and s3 and s4 and not s5:
         error = -5
+       # hold=True
     elif not s1 and s2 and not s3 and not s4 and not s5:
         error = -2
     elif s1 and s2 and not s3 and not s4 and not s5:
@@ -125,9 +138,9 @@ def getSensors():
         error = -4
     elif not s1 and not s2 and not s3 and not s4 and not s5:
         if error > 0:
-            error = 5
+            error = 4
         else:
-            error = -5
+            error = -4
 
  
 
@@ -145,6 +158,8 @@ def motorControl():
     global rightMotorSpeed
     leftMotorSpeed = initialMotorSpeed - PD_value;
     rightMotorSpeed = initialMotorSpeed + PD_value;
+
+    #leftMotorSpeed = leftMotorSpeed + 10
 
     leftMotorSpeed = np.clip(leftMotorSpeed, 0, maxSpeed)
     rightMotorSpeed = np.clip(rightMotorSpeed, 0, maxSpeed)
@@ -166,6 +181,7 @@ class lineFollowProgram:
         self._running = True
 
     def terminate(self):
+        motor.clear()
         self._running = False
 
     def run(self):
@@ -188,21 +204,27 @@ def manualTuningRoutine():
     elif keyp == 'p':
         P = P + 0.5
         pid.setKp(P)
+        print("P = " + str(P) + "\tI = " + str(I) + "\tD = " + str(D))
     elif keyp == 'o':
         P = P - 0.5
         pid.setKp(P)
+        print("P = " + str(P) + "\tI = " + str(I) + "\tD = " + str(D))
     elif keyp == 'k':
         D = D - 0.5
         pid.setKd(D)
+        print("P = " + str(P) + "\tI = " + str(I) + "\tD = " + str(D))
     elif keyp == 'l':
         D = D + 0.5
         pid.setKd(D)
+        print("P = " + str(P) + "\tI = " + str(I) + "\tD = " + str(D))
     elif keyp == 'n':
         I = I - 0.01
         pid.setKi(I)
+        print("P = " + str(P) + "\tI = " + str(I) + "\tD = " + str(D))
     elif keyp == 'm':
         I = I + 0.01
         pid.setKi(I)
+        print("P = " + str(P) + "\tI = " + str(I) + "\tD = " + str(D))
 
 class manualTuningProgram():
     def __init__(self):
@@ -214,36 +236,32 @@ class manualTuningProgram():
     def run(self):
         while self._running:
             manualTuningRoutine()
-
+lineFollow = lineFollowProgram()
+manualTuning = manualTuningProgram()
 def startLineFollowThread():
-    lineFollow = lineFollowProgram()
+    #lineFollow = lineFollowProgram()
     lineFollowThread = Thread(target=lineFollow.run)
     lineFollowThread.start()
 
 def startManualTuningThread():
-    manualTuning = manualTuningProgram()
+    #manualTuning = manualTuningProgram()
     manualTuningThread = Thread(target=manualTuning.run)
     manualTuningThread.start()
 
 #==================================================================
 # main while loop
 
-try:
 
-    startLineFollowThread()
-    startManualTuningThread()
+startLineFollowThread()
+startManualTuningThread()
 
 
-    while not EXIT:
-
-        print str(s1) + "\t" + str(s2) + "\t" + str(s3) + "\t" + str(s4) + "\t" + str(s5)
-
-except KeyboardInterrupt:
+while not EXIT:
+    #print(str(leftMotorSpeed) + "\t" + str(rightMotorSpeed))
     pass
 
-finally:
-    motor.clear()
-    #manualTuning.terminate()
-    lineFollow.terminate()
-    print "Goodbye :)"
+lineFollow.terminate()
+manualTuning.terminate()
+motor.clear()
+
 

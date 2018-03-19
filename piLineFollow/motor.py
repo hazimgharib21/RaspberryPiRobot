@@ -1,4 +1,5 @@
 import RPi.GPIO as GPIO
+import time
 
 class motor:
 
@@ -12,11 +13,17 @@ class motor:
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
 
+        time.sleep(1)
 
+        GPIO.setup(4,GPIO.OUT)
         GPIO.setup(self.pwm2, GPIO.OUT)
         GPIO.setup(self.pwm1, GPIO.OUT)
         GPIO.setup(self.dir1, GPIO.OUT)
         GPIO.setup(self.dir2, GPIO.OUT)
+        GPIO.output(4,GPIO.HIGH)
+        time.sleep(1)
+        GPIO.output(4,GPIO.LOW)
+    
 
         self.motorSpeedLeft = 0.0
         self.motorSpeedRight = 0.0
@@ -47,7 +54,10 @@ class motor:
         self.motorSpeedRight = rightSpeed
 
     def clear(self):
+        self.motor1.ChangeDutyCycle(0)
+        self.motor2.ChangeDutyCycle(0)
         GPIO.cleanup()
+
 
 
 

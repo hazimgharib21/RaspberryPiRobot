@@ -23,16 +23,27 @@ class irSensor:
 
         GPIO.setmode(GPIO.BCM)
         GPIO.setwarnings(False)
+        time.sleep(1)
 
+        GPIO.setup(4,GPIO.OUT)
         GPIO.setup(self.s1, GPIO.IN)
         GPIO.setup(self.s2, GPIO.IN)
         GPIO.setup(self.s3, GPIO.IN)
         GPIO.setup(self.s4, GPIO.IN)
         GPIO.setup(self.s5, GPIO.IN)
+        GPIO.output(4,GPIO.HIGH)
+        time.sleep(1)
+        GPIO.output(4,GPIO.LOW)
+        time.sleep(0.5)
+        GPIO.output(4,GPIO.HIGH)
+        time.sleep(0.5)
+        GPIO.output(4,GPIO.LOW)
+        time.sleep(0.5)
+        GPIO.output(4,GPIO.HIGH)
         
         self.delta_time = 0.0
 
-        self.output = [self.ds1,self.ds2,self.ds3,self.ds4,self.ds5,self.delta_time]
+        self.output = [self.ds1,self.ds2,self.ds3,self.ds4,self.ds5]
 
     def update(self):
 
@@ -49,7 +60,7 @@ class irSensor:
             self.ds4 = GPIO.input(self.s4)
             self.ds5 = GPIO.input(self.s5)
 
-            self.output = [self.ds1,self.ds2,self.ds3,self.ds4,self.ds5,self.delta_time * 1000]
+            self.output = [self.ds1,self.ds2,self.ds3,self.ds4,self.ds5]
 
     def setSampleTime(self, sampleTime):
         self.sample_time = sampleTime
