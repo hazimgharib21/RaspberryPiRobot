@@ -7,8 +7,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 input_state = True
 import numpy as np
-Kp = 33.0
-Kd = 900.0
+Kp = 25.0
+Kd = 50.0
 Ki = 0.0
 
 lost = False
@@ -21,14 +21,14 @@ totalError = 0.0
 pwmLeft = 0.0
 pwmRight = 0.0
 
-maxSpeed = 50
+maxSpeed = 30
 
-import motorTwo
+import motor
 import irSensor
 
 import PID
 
-motor = motorTwo.motorTwo()
+motor = motor.motor()
 lineSensor = irSensor.irSensor(11,9,10,22,27)
 lineSensor.setSampleTime(0.01)
 pid = PID.PID(Kp,Ki,Kd)
@@ -56,15 +56,36 @@ try:
             totalSensor += sensor * (i+1)
 
         if activeSensor != 0:
+            maxSpeed = 70
+            pid.setKp(25.0)
+            pid.setKd(50.0)
+
             deviation = 4.0
             avgSensor = totalSensor/activeSensor
             lost = False
         else:
+            
+            
             if lost == False:
+
+
+
+                #motor.setLeftMotorSpeed(0)
+                #motor.setRightMotorSpeed(0)
+                #motor.move()
+                #time.sleep(1)
+
                 if previousError < 0:
                     deviation = 4.0
                 else:
                     deviation = -4.0
+
+                maxSpeed = 20
+                pid.setKp(5.0)
+                pid.setKd(00.0)
+
+
+                
                 lost = True
             avgSensor = 0
         
@@ -72,15 +93,16 @@ try:
         deltaError = error - previousError
         previousError = error # save previous error for differential
         error = avgSensor - deviation # Count how much robot deviate from center
+            
         pid.setPoint(deviation)
         pid.update(avgSensor)
         power = pid.output
 
         #power = (Kp * error) + (Kd * deltaError)
-        if( power > maxSpeed):
-            power = maxSpeed
-        if( power < -maxSpeed):
-            power = -maxSpeed
+       # if( power > maxSpeed):
+       #     power = maxSpeed
+       # if( power < -maxSpeed):
+       #     power = -maxSpeed
 
         if(power<0):
             pwmRight = maxSpeed - abs(power)
@@ -89,10 +111,17 @@ try:
             pwmRight = maxSpeed + power
             pwmLeft = maxSpeed - power
     
-        #pwmLeft = pwmLeft + 10
+        pwmRight = pwmRight + 3
 
-        pwmRight = np.clip(pwmRight, 0, 100)
-        pwmLeft = np.clip(pwmLeft, 0, 100)
+        if(pwmRight > 100):
+            pwmRight = 100
+        elif(pwmRight < -100):
+            pwmRight = -100
+        if(pwmLeft > 100):
+            pwmLeft = 100
+        elif(pwmLeft < -100):
+            pwmLeft = -100
+            
         #print str(pwmLeft) + "\t" + str(pwmRight) + "\t" + str(power) + "\t" + str(lost)
 
         motor.setLeftMotorSpeed(pwmLeft)
@@ -105,5 +134,5 @@ try:
 finally:
     print "Goodbye :)"
     motor.clear()
-    #os.system('sudo halt')
+    os.system('sudo halt')
     time.sleep(0.05)

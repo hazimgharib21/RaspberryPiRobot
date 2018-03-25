@@ -1,7 +1,7 @@
 import RPi.GPIO as GPIO
 import time
 
-class motor:
+class motorTwo:
 
     def __init__(self, motorDir1=26, motorDir2=24, motorPWM1=12, motorPWM2=13):
 
@@ -36,28 +36,13 @@ class motor:
         self.motor2.start(0)
         self.motor2.ChangeDutyCycle(0)
 
+        GPIO.output(self.dir1, GPIO.LOW)
+        GPIO.output(self.dir2, GPIO.HIGH)
+
 
 
     def move(self):
-        #GPIO.output(self.dir2, GPIO.LOW) # right backward
-        #GPIO.output(self.dir2, GPIO.HIGH) # right backward
-        #GPIO.output(self.dir1, GPIO.LOW) # left forward
-        #GPIO.output(self.dir1, GPIO.HIGH) # left reverse
-        
-        if(self.motorSpeedLeft < 0):
-            self.motorSpeedLeft = 0 - self.motorSpeedLeft
-            GPIO.output(self.dir1, GPIO.HIGH)
             self.motor1.ChangeDutyCycle(self.motorSpeedLeft)
-        elif(self.motorSpeedLeft >= 0):
-            GPIO.output(self.dir1, GPIO.LOW)
-            self.motor1.ChangeDutyCycle(self.motorSpeedLeft)
-
-        if(self.motorSpeedRight < 0):
-            self.motorSpeedRight = 0 - self.motorSpeedRight
-            GPIO.output(self.dir2, GPIO.LOW)
-            self.motor2.ChangeDutyCycle(self.motorSpeedRight)
-        elif(self.motorSpeedRight >= 0):
-            GPIO.output(self.dir2, GPIO.HIGH)
             self.motor2.ChangeDutyCycle(self.motorSpeedRight)
 
     def setLeftMotorSpeed(self, leftSpeed):

@@ -7,8 +7,8 @@ GPIO.setmode(GPIO.BCM)
 GPIO.setup(buttonPin, GPIO.IN, pull_up_down=GPIO.PUD_UP)
 input_state = True
 import numpy as np
-Kp = 33.0
-Kd = 900.0
+Kp = 25.0
+Kd = 50.0
 Ki = 0.0
 
 lost = False
@@ -21,14 +21,14 @@ totalError = 0.0
 pwmLeft = 0.0
 pwmRight = 0.0
 
-maxSpeed = 50
+maxSpeed = 90
 
-import motorTwo
+import motor
 import irSensor
 
 import PID
 
-motor = motorTwo.motorTwo()
+motor = motor.motor()
 lineSensor = irSensor.irSensor(11,9,10,22,27)
 lineSensor.setSampleTime(0.01)
 pid = PID.PID(Kp,Ki,Kd)
@@ -60,7 +60,11 @@ try:
             avgSensor = totalSensor/activeSensor
             lost = False
         else:
+            
             if lost == False:
+
+
+
                 if previousError < 0:
                     deviation = 4.0
                 else:
@@ -77,10 +81,10 @@ try:
         power = pid.output
 
         #power = (Kp * error) + (Kd * deltaError)
-        if( power > maxSpeed):
-            power = maxSpeed
-        if( power < -maxSpeed):
-            power = -maxSpeed
+       # if( power > maxSpeed):
+       #     power = maxSpeed
+       # if( power < -maxSpeed):
+       #     power = -maxSpeed
 
         if(power<0):
             pwmRight = maxSpeed - abs(power)
@@ -89,11 +93,18 @@ try:
             pwmRight = maxSpeed + power
             pwmLeft = maxSpeed - power
     
-        #pwmLeft = pwmLeft + 10
+        pwmRight = pwmRight + 3
 
-        pwmRight = np.clip(pwmRight, 0, 100)
-        pwmLeft = np.clip(pwmLeft, 0, 100)
-        #print str(pwmLeft) + "\t" + str(pwmRight) + "\t" + str(power) + "\t" + str(lost)
+        if(pwmRight > 100):
+            pwmRight = 100
+        elif(pwmRight < -100):
+            pwmRight = -100
+        if(pwmLeft > 100):
+            pwmLeft = 100
+        elif(pwmLeft < -100):
+            pwmLeft = -100
+            
+        print str(pwmLeft) + "\t" + str(pwmRight) + "\t" + str(power) + "\t" + str(lost)
 
         motor.setLeftMotorSpeed(pwmLeft)
         motor.setRightMotorSpeed(pwmRight)

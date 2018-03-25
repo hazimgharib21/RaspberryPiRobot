@@ -140,13 +140,13 @@ try:
             motorForward(5,40)
         elif s1 and s2 and s3 and not s4 and not s5:
             print("left 3")
-            motorForward(7.5,40)
+            motorForward(27.5,40)
         elif not s1 and s2 and not s3 and not s4 and not s5:
             print("left 4")
-            motorForward(9,40)
+            motorForward(29,40)
         elif not s1 and s2 and s3 and not s4 and not s5:
             print("left 5")
-            motorForward(14,40)
+            motorForward(34,40)
         elif not s1 and not s2 and not s3 and not s4 and s5:
             print("right 1")
             motorForward(40,0)
@@ -155,13 +155,13 @@ try:
             motorForward(40,5)
         elif not s1 and not s2 and s3 and s4 and s5:
             print("right 3")
-            motorForward(40,7.5)
+            motorForward(40,27.5)
         elif not s1 and not s2 and not s3 and s4 and not s5:
             print("right 4")
-            motorForward(40,9)
+            motorForward(40,29)
         elif not s1 and not s2 and s3 and s4 and not s5:
             print("right 5")
-            motorForward(40,14)
+            motorForward(40,34)
         elif not s1 and not s2 and s3 and not s4 and not s5:
             print("straight 1")
             motorForward(40,40)
